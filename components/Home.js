@@ -1,8 +1,8 @@
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Button } from 'react-native';
 
 import styled from 'styled-components';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-
+import {app, db, getFirestore, collection, addDoc} from '../firebase/index';
 const HomeScreen = styled.View`
 flex: 1;
 background: #efefef;
@@ -38,9 +38,22 @@ margin-left: 10px;
 //important icon names:
 //chevron-down, bars, heart, lock
 export default function Home(){
+  const addItem = async()=>{
+    try {
+      const docRef = await addDoc(collection(db, "users"), {
+        first: "Ada",
+        last: "Lovelace",
+        born: 1815
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
   return <HomeScreen>
     <Header/>
     <Stories/>
+    <Button onPress={addItem} title='Test'/>
   </HomeScreen>
 }
 
