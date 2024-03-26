@@ -3,6 +3,8 @@ import { StyleSheet, Text, View, Image, Button } from 'react-native';
 import styled from 'styled-components';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {app, db, getFirestore, collection, addDoc} from '../firebase/index';
+import { useEffect, useState } from 'react';
+import { getDocs } from 'firebase/firestore';
 const HomeScreen = styled.View`
 flex: 1;
 background: #efefef;
@@ -38,6 +40,7 @@ margin-left: 10px;
 //important icon names:
 //chevron-down, bars, heart, lock
 export default function Home(){
+  const [users, setUsers] = useState([{"first": "lol"}])
   const addItem = async()=>{
     try {
       const docRef = await addDoc(collection(db, "users"), {
@@ -46,14 +49,31 @@ export default function Home(){
         born: 1815
       });
       console.log("Document written with ID: ", docRef.id);
+      loadUsers();
     } catch (e) {
       console.error("Error adding document: ", e);
+    }
+  }
+  useEffect(()=>{
+    loadUsers();
+  },[])
+  const loadUsers = async()=>{
+    try{
+      const usersSnapshot = await getDocs(collection(db, 'users'))
+      const usersData = usersSnapshot.docs.map(doc => doc.data());
+      setUsers(usersData)
+      console.log(usersData[0]["first"]);
+    }catch(error){
+      console.error("Error loading storeis: ", error);
     }
   }
   return <HomeScreen>
     <Header/>
     <Stories/>
     <Button onPress={addItem} title='Test'/>
+    {users.map((user)=>(
+      <Text>{user["first"]}</Text>
+    ))}
   </HomeScreen>
 }
 
