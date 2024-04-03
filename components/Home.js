@@ -1,52 +1,39 @@
-import { StyleSheet, Text, View, Image, Button } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, TextInput } from 'react-native';
 
 import styled from 'styled-components';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {app, db, getFirestore, collection, addDoc} from '../firebase/index';
 import { useEffect, useState } from 'react';
 import { getDocs } from 'firebase/firestore';
+
 const HomeScreen = styled.View`
 flex: 1;
-background: #efefef;
-padding-top: 50px;
+align-items: center;
+justify-content: center;
+`
+const LayoutContainer = styled.View`
+width: 90%;
+height: auto;
 align-items: center;
 `
-const HeaderNavBar = styled.View`
-flex-direction: row;
-justify-content: space-between;
-width: 90%;
+const RoutineInput = styled.TextInput`
+border: 1px solid black;
+width: 100%;
 `
-const ForYouText = styled.Text`
-font-size: 20px;
-font-weight: bold;
+const AddRoutineButton = styled.Button`
+width: 100%;
+background: green;
 `
 
-const StoriesSection = styled.View`
-flex-direction: row;
-width: 100%;
-gap: 10px;
-margin-top: 10px;
-`;
-const StoryPics = styled.Image`
-width: 80px;
-height: 80px;
-border-radius: 100px;
-`;
-const StoryContainerView = styled.View`
-justify-content: center;
-align-items: center;
-margin-left: 10px;
-`;
 //important icon names:
 //chevron-down, bars, heart, lock
 export default function Home(){
   const [users, setUsers] = useState([{"first": "lol"}])
+  const [routineName, setRoutineName] = useState("")
   const addItem = async()=>{
     try {
-      const docRef = await addDoc(collection(db, "users"), {
-        first: "Ada",
-        last: "Lovelace",
-        born: 1815
+      const docRef = await addDoc(collection(db, "routines"), {
+        routinename: routineName
       });
       console.log("Document written with ID: ", docRef.id);
       loadUsers();
@@ -59,48 +46,24 @@ export default function Home(){
   },[])
   const loadUsers = async()=>{
     try{
-      const usersSnapshot = await getDocs(collection(db, 'users'))
-      const usersData = usersSnapshot.docs.map(doc => doc.data());
-      setUsers(usersData)
-      console.log(usersData[0]["first"]);
+      const routineSnapshot = await getDocs(collection(db, 'routines'))
+      const routinedata = routineSnapshot.docs.map(doc => doc.data());
+      setUsers(routinedata)
+      console.log(routinedata);
     }catch(error){
       console.error("Error loading storeis: ", error);
     }
   }
   return <HomeScreen>
-    <Header/>
-    <Stories/>
-    <Button onPress={addItem} title='Test'/>
-    {users.map((user)=>(
-      <Text>{user["first"]}</Text>
-    ))}
+    <LayoutContainer>
+      <RoutineInput onChangeText={text=> setRoutineName(text)} value={routineName}  />
+      <Button color={"green"} onPress={addItem} title='Test'/>
+      {users.map((user)=>(
+        <Text>{user["first"]}</Text>
+      ))}
+    </LayoutContainer>
+   
   </HomeScreen>
 }
 
-function Header(){
-  return (
-    <HeaderNavBar>
-      <View style={{flexDirection: "row", gap: 8, alignItems: "center"}}>
-        <ForYouText>Für dich</ForYouText>
-        <Icon name='chevron-down' size={15} color="#111"/>
-      </View>
-      <View style={{flexDirection: "row", gap: 20}}>
-        <Icon name='heart' size={25} color="#111"/>
-        <Icon name='paper-plane' size={25} color="#111"/>
-      </View>
-    </HeaderNavBar>
-  )
-}
-function Stories(){
-  return <StoriesSection>
-    <StoryContainer usernameStory={"Deine Story"}/>
-    <StoryContainer usernameStory={"Alice"}/>
-    <StoryContainer usernameStory={"Tino"}/>
-  </StoriesSection>
-}
-function StoryContainer({usernameStory}){
-  return <StoryContainerView>
-    <StoryPics source={require("../assets/img/profilepic.jpg")}/>
-    <Text style={{fontSize: 15}}>{usernameStory}</Text>
-  </StoryContainerView>
-}
+
