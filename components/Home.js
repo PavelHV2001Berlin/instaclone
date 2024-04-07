@@ -15,54 +15,59 @@ const LayoutContainer = styled.View`
 width: 90%;
 height: auto;
 align-items: center;
+justify-content: space-between;
+gap: 10px;
 `
-const RoutineInput = styled.TextInput`
-border: 1px solid black;
-width: 100%;
+
+
+const RoutineView = styled.View`
+background: grey;
+width: 80%;
+height: 50px;
+align-items: center;
+justify-content: center;
 `
-const AddRoutineButton = styled.Button`
-width: 100%;
-background: green;
-`
+
 
 //important icon names:
 //chevron-down, bars, heart, lock
 export default function Home(){
-  const [users, setUsers] = useState([{"first": "lol"}])
+  const [allRoutines, setAllRoutines] = useState([{"routinename": "lol", "CompletedOnDate": ["Heute", "Gestern", "Vorgestern"]}])
   const [routineName, setRoutineName] = useState("")
   const addItem = async()=>{
     try {
       const docRef = await addDoc(collection(db, "routines"), {
-        routinename: routineName
+        routinename: routineName,
+        CompletedOnDate: ["Heute", "Gestern", "Vorgestern"]
       });
       console.log("Document written with ID: ", docRef.id);
-      loadUsers();
+      loadRoutines();
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   }
   useEffect(()=>{
-    loadUsers();
+    loadRoutines();
   },[])
-  const loadUsers = async()=>{
+  const loadRoutines = async()=>{
     try{
       const routineSnapshot = await getDocs(collection(db, 'routines'))
       const routinedata = routineSnapshot.docs.map(doc => doc.data());
-      setUsers(routinedata)
+      setAllRoutines(routinedata)
       console.log(routinedata);
     }catch(error){
-      console.error("Error loading storeis: ", error);
+      console.error("Error loading routines: ", error);
     }
   }
   return <HomeScreen>
     <LayoutContainer>
-      <RoutineInput onChangeText={text=> setRoutineName(text)} value={routineName}  />
-      <Button color={"green"} onPress={addItem} title='Test'/>
-      {users.map((user)=>(
-        <Text>{user["first"]}</Text>
+       
+      {allRoutines.map((routine)=>(
+        <RoutineView>
+          <Text>{routine["routinename"]}</Text>
+        </RoutineView>
       ))}
     </LayoutContainer>
-   
   </HomeScreen>
 }
 
